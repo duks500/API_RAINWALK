@@ -9,6 +9,9 @@
 
     2.3 understand how to encapsulate views with
         2.3.1 mixins.ListModelMixin + GenericAPIView
+        * Mixins - is a class that provides the user with the basic view behavior in a much eaiser way (No need to define the handler, just provides the action methods).
+        * GenericAPIView - is an extends class REST framework that adds commonly required behavior for the standart list and detail views
+
         2.3.2 generics.ListAPIView
         2.3.3 viewsets + Router
 

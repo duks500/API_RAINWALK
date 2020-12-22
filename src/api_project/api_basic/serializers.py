@@ -27,4 +27,5 @@ class ArticleSerializer_serializers(serializers.Serializer):
 class ArticleSerializer_Modelserializers(serializers.ModelSerializer):
     class Meta: #just like a ModelForm class
         model = Article #specify the model name
-        fields = ['id','title','author'] #specify the fields
+        # fields = ['id','title','author'] #specify the fields
+        fields = '__all__' #get all fields

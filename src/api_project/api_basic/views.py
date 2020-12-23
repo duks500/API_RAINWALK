@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
 from .models import Article
@@ -6,14 +6,38 @@ from .serializers import ArticleSerializer_Modelserializers
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status, generics, mixins
+from rest_framework import status, generics, mixins, viewsets
 from rest_framework.views import APIView
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
 # Create your views here.
+
+class ArticelViewSet(viewsets.ModelViewSet):
+    
+    serializer_class = ArticleSerializer_Modelserializers ##serilaze the data
+    queryset = Article.objects.all() #add all the datas to a query set
+
+# class ArticelViewSet(
+#     viewsets.GenericViewSet,
+#     mixins.ListModelMixin,
+#     mixins.CreateModelMixin,
+#     mixins.UpdateModelMixin,
+#     mixins.RetrieveModelMixin,
+#     mixins.DestroyModelMixin):
+    
+#     ## Built in variabling into the mixin class ##
+#     serializer_class = ArticleSerializer_Modelserializers ##serilaze the data
+#     queryset = Article.objects.all() #add all the datas to a query set
+    
+
+
 
 
 ### A class base data using the Mixins extensions ###
 ### This is equal to the ArticleAPIView class but as you can tell it is mush easier and much more straight forward ###
 class GenericAPIView(
+    
     generics.GenericAPIView,
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
@@ -26,7 +50,12 @@ class GenericAPIView(
     queryset = Article.objects.all() #add all the datas to a query set
 
     lookup_field = 'id' #instead of using pk, I am using an id
-    
+
+    #authentication_classes = [SessionAuthentication, BasicAuthentication] #check for SessionAuthentication and for BasicAuthentication in case SessionAuthentication is not avialable
+    # authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+
+
     ## A get method ##
     def get(self, request, id=None):
 

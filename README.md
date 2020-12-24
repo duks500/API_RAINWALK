@@ -44,3 +44,6 @@
 - There is a need to add an authorization to the code by checking at the beginning of every function whether the user has the right authorities to use the function/class.
 
 ## 4. How to develop a cache mechanism with DjangoRestFramework? Why we need this?
+
+- The issue with dynamic websites is that every time the user requests a page, the server makes all sorts of different calculations in the background. Those calculations can be very expensive and time-consuming. Therefore, by using the cache mechanism, the server can save the results of those calculations in case there will be a need to make the same call later on.
+- To use the cache mechanism in Django REST Framework can be achieved by using the cache_page() function which will cache the page for a fixed number of seconds/minutes/hours. 

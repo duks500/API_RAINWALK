@@ -10,7 +10,49 @@ from rest_framework.views import APIView
 from rest_framework import status, generics, mixins, viewsets
 
 import requests
+import time
+
 # Create your views here.
+### a class base data using APIView ###
+class ArticleAPIView(APIView):
+    ## A get method ##
+    lookup_url_kwarg = 'https://stgportalone.processonepayments.com/Api/Api/Session/Create?portalOneAuthenticationKey=0ae16856-aef9-4170-86d6-8d3daa96cd14'
+    def get(self, request):
+        articles = GetInfo.objects.all()
+        serializer = GetInfo_Modelserializers(articles, many=True)
+        return Response(serializer.data) #return all the data after serializer
+
+
+
+class GenericAPIView(generics.ListAPIView):
+    serializer_class = GetInfo_Modelserializers
+    queryset = GetInfo.objects.all()
+    lookup_url_kwarg = 'https://stgportalone.processonepayments.com/Api/Api/Session/Create?portalOneAuthenticationKey=0ae16856-aef9-4170-86d6-8d3daa96cd14'
+    # def get_queryset(self):
+    #     queryset = GetInfo.objects.all()
+    #     portalOneAuthenticationKey = self.request.query_params.get['PortalOneSessionKey']
+    #     queryset = queryset.filter(token = portalOneAuthenticationKey)
+    #     return queryset
+
+    ## A get method ##
+    def get(self, request, id=None):
+
+        if id:
+            return self.retrieve(request)
+
+        else:
+            return self.list(request)
+
+
+@api_view(('GET',))
+def external_api_view(request):
+    if request.method == "GET":
+        r = requests.get("https://stgportalone.processonepayments.com/Api/Api/Session/Create?portalOneAuthenticationKey=0ae16856-aef9-4170-86d6-8d3daa96cd14", timeout=10)
+        if r.status_code == 200:
+            # data = r.json()
+            serializer = GetInfo_Modelserializers(r.json())
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class GetInfoID(viewsets.GenericViewSet, mixins.RetrieveModelMixin):
     serializer_class = GetInfo_Modelserializers ##serilaze the data

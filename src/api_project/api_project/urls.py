@@ -20,5 +20,6 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('admin/', admin.site.urls),
     path('', include('api_basic.urls')),
-    path('oneinc/', include('oneinc.urls'))
+    path('oneinc/', include('oneinc.urls')),
+    path('new/', include('new.api.urls')),
 ]

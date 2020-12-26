@@ -2,6 +2,8 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from .models import GetInfo
 from .serializers import GetInfo_Modelserializers
+from  django.conf import settings
+
 
 from rest_framework import status, generics, mixins, viewsets
 from rest_framework.response import Response
@@ -11,6 +13,38 @@ from rest_framework import status, generics, mixins, viewsets
 
 import requests
 import time
+
+
+class Getting_Session_Id(viewsets.ModelViewSet):
+    queryset = GetInfo.objects.all()
+    serializer_class = GetInfo_Modelserializers
+
+    def list(self, request):
+        url = 'https://stgportalone.processonepayments.com/Api/Api/Session/Create'
+        params = {'portalOneAuthenticationKey': settings.POERALONEAUTHENTICATIONKEY}
+        r = requests.get(url, params=params,)
+        json = r.json()
+        serializer = GetInfo_Modelserializers(data=json)
+        if serializer.is_valid():
+            embed = serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class Creating_Account(viewsets.ModelViewSet):
+    queryset = GetInfo.objects.all()
+    serializer_class = GetInfo_Modelserializers
+
+    def create(self, request):
+        url = 'https://stgportalone.processonepayments.com/Api/Api/Customer/CreateAccount'
+        body = {"portalOneAuthenticationKey": settings.POERALONEAUTHENTICATIONKEY,"ExternalCustomerId": "TestID","CustomerName": "ITAY GOLD"}
+        r = requests.post(url, json=body)
+        json = r.json()
+        print(json['data'])
+        serializer = GetInfo_Modelserializers(data=json)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
 
 # Create your views here.
 ### a class base data using APIView ###
@@ -44,14 +78,20 @@ class GenericAPIView(generics.ListAPIView):
             return self.list(request)
 
 
-@api_view(('GET',))
+@api_view(('GET', 'POST'))
 def external_api_view(request):
     if request.method == "GET":
-        r = requests.get("https://stgportalone.processonepayments.com/Api/Api/Session/Create?portalOneAuthenticationKey=0ae16856-aef9-4170-86d6-8d3daa96cd14", timeout=10)
+        url = 'https://stgportalone.processonepayments.com/Api/Api/Session/Create'
+        params = {'portalOneAuthenticationKey': '0ae16856-aef9-4170-86d6-8d3daa96cd14'}
+        r = requests.get(url, params=params,)
         if r.status_code == 200:
             # data = r.json()
             serializer = GetInfo_Modelserializers(r.json())
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+    
+
+
 
 
 class GetInfoID(viewsets.GenericViewSet, mixins.RetrieveModelMixin):

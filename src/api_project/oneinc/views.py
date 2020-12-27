@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from .models import GetInfo
-from .serializers import GetInfo_Modelserializers
+from .serializers import GetInfo_Modelserializers, CreateUser_Modelserializers
 from  django.conf import settings
 
 
@@ -10,18 +10,24 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework import status, generics, mixins, viewsets
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 import requests
 import time
 
-
+### a class do find session ID ###
 class Getting_Session_Id(viewsets.ModelViewSet):
     queryset = GetInfo.objects.all()
     serializer_class = GetInfo_Modelserializers
 
+    authentication_classes = [SessionAuthentication, BasicAuthentication] #check for SessionAuthentication and for BasicAuthentication in case SessionAuthentication is not avialable
+    permission_classes = [IsAuthenticated]
+
     def list(self, request):
         url = 'https://stgportalone.processonepayments.com/Api/Api/Session/Create'
-        params = {'portalOneAuthenticationKey': settings.POERALONEAUTHENTICATIONKEY}
+        # params = {'portalOneAuthenticationKey': settings.POERALONEAUTHENTICATIONKEY}
+        params = {'portalOneAuthenticationKey': settings.POERALONEAUTHENTICATIONKEY, 'customerId': 'fadafb7b-f7ab-4141-8651-5b3bc8ffcee7'}
         r = requests.get(url, params=params,)
         json = r.json()
         serializer = GetInfo_Modelserializers(data=json)
@@ -30,23 +36,56 @@ class Getting_Session_Id(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
         #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class Creating_Account(viewsets.ModelViewSet):
-    queryset = GetInfo.objects.all()
-    serializer_class = GetInfo_Modelserializers
-    def create(self, request):
+
+### a class to creat an account ###
+class Creating_Account(APIView):
+    # serializer_class = CreateUser_Modelserializers
+    # queryset = GetInfo.objects.all()
+
+
+    authentication_classes = [SessionAuthentication, BasicAuthentication] #check for SessionAuthentication and for BasicAuthentication in case SessionAuthentication is not avialable
+    permission_classes = [IsAuthenticated]
+
+    ## A get function for an existince object with spacific id ##
+    def get(self, request):
+        creatU = GetInfo.objects.all()
+        serializer = CreateUser_Modelserializers(creatU, many=True)
+        return Response(serializer.data) #return all the data after serializer
+    
+    def post(self, request):
         url = 'https://stgportalone.processonepayments.com/Api/Api/Customer/CreateAccount'
         body = {
-            "PortalOneAuthenticationKey":settings.POERALONEAUTHENTICATIONKEY,
+            'PortalOneAuthenticationKey': settings.POERALONEAUTHENTICATIONKEY,
             "ExternalCustomerId": "test",
             "CustomerName": "Itay Goldfaden"
             }
-        r = requests.post(url, json=body)
-        json = r.json()
-        serializer = GetInfo_Modelserializers(data=json)
+        r = requests.post(url, data=body)
+        jsona = r.json()
+        serializer = CreateUser_Modelserializers(data=jsona)
         if serializer.is_valid():
-            
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # if the data is not vaild - thorugh an error #
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class Creating_Account(viewsets.ModelViewSet):
+#     queryset = GetInfo.objects.all()
+#     serializer_class = CreateUser_Modelserializers
+#     def create(self, request):
+#         url = 'https://stgportalone.processonepayments.com/Api/Api/Customer/CreateAccount'
+#         body = {
+#             "PortalOneAuthenticationKey":settings.POERALONEAUTHENTICATIONKEY,
+#             "ExternalCustomerId": "test",
+#             "CustomerName": "Itay Goldfaden"
+#             }
+#         r = requests.post(url, json=body)
+#         json = r.json()
+#         serializer = CreateUser_Modelserializers(data=json)
+#         if serializer.is_valid():
+            
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 

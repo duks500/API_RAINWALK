@@ -84,6 +84,8 @@ class GenericAPIView(
 
 ### a class base data using APIView ###
 class ArticleAPIView(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication] #check for SessionAuthentication and for BasicAuthentication in case SessionAuthentication is not avialable
+    permission_classes = [IsAuthenticated]
 
     ## A get method ##
     def get(self, request):

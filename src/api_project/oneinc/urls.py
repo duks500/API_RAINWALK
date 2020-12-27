@@ -8,8 +8,8 @@ router = DefaultRouter()
 # router.register('getInfro', GetInfoID, basename='getInfr')
 router.register('getInfro', Getting_Session_Id, basename='getInfr')
 
-routerPOST = DefaultRouter()
-routerPOST.register('create', Creating_Account, basename='create')
+# routerPOST = DefaultRouter()
+# routerPOST.register('create', Creating_Account, basename='create')
 
 urlpatterns = [
     # path('view/', include(router.urls)),
@@ -20,5 +20,6 @@ urlpatterns = [
     # path('', GenericAPIView.as_view()),
     path('t', ArticleAPIView.as_view()),
     path('', include(router.urls)),
-    path('create/', include(routerPOST.urls)),
+    # path('create/', include(routerPOST.urls)),
+    path('create/', Creating_Account.as_view())
 ]

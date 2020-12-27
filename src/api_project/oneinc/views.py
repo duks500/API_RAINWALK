@@ -33,16 +33,20 @@ class Getting_Session_Id(viewsets.ModelViewSet):
 class Creating_Account(viewsets.ModelViewSet):
     queryset = GetInfo.objects.all()
     serializer_class = GetInfo_Modelserializers
-
     def create(self, request):
         url = 'https://stgportalone.processonepayments.com/Api/Api/Customer/CreateAccount'
-        body = {"portalOneAuthenticationKey": settings.POERALONEAUTHENTICATIONKEY,"ExternalCustomerId": "TestID","CustomerName": "ITAY GOLD"}
+        body = {
+            "PortalOneAuthenticationKey":settings.POERALONEAUTHENTICATIONKEY,
+            "ExternalCustomerId": "test",
+            "CustomerName": "Itay Goldfaden"
+            }
         r = requests.post(url, json=body)
         json = r.json()
-        print(json['data'])
         serializer = GetInfo_Modelserializers(data=json)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
+        if serializer.is_valid():
+            
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
